@@ -1,4 +1,4 @@
-targetScope = 'subscription'
+targetScope = 'resourceGroup'
 
 @minLength(1)
 @maxLength(64)
@@ -48,7 +48,7 @@ param openAiServiceName string = ''
 param openAiResourceGroupName string = ''
 param useGPT4V bool = false
 
-param keyVaultResourceGroupName string = ''
+// param keyVaultResourceGroupName string = ''
 param keyVaultServiceName string = ''
 param searchServiceSecretName string = 'searchServiceSecret'
 
@@ -82,7 +82,7 @@ param documentIntelligenceResourceGroupLocation string
 param documentIntelligenceSkuName string = 'S0'
 
 param computerVisionServiceName string = ''
-param computerVisionResourceGroupName string = ''
+// param computerVisionResourceGroupName string = ''
 param computerVisionResourceGroupLocation string = 'eastus' // Vision vectorize API is yet to be deployed globally
 param computerVisionSkuName string = 'S1'
 
@@ -126,7 +126,7 @@ param useVectors bool = false
 param useIntegratedVectorization bool = false
 
 var abbrs = loadJsonContent('abbreviations.json')
-var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+var resourceToken = toLower(uniqueString(resourceGroup().id, environmentName, location))
 var tags = { 'azd-env-name': environmentName }
 var computerVisionName = !empty(computerVisionServiceName) ? computerVisionServiceName : '${abbrs.cognitiveServicesComputerVision}${resourceToken}'
 
@@ -141,40 +141,40 @@ param runningOnGh string = ''
 param runningOnAdo string = ''
 
 // Organize resources in a resource group
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}${environmentName}'
-  location: location
-  tags: tags
-}
+// resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+//   name: !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}${environmentName}'
+//   location: location
+//   tags: tags
+// }
 
-resource openAiResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(openAiResourceGroupName)) {
-  name: !empty(openAiResourceGroupName) ? openAiResourceGroupName : resourceGroup.name
-}
+// resource openAiResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(openAiResourceGroupName)) {
+//   name: !empty(openAiResourceGroupName) ? openAiResourceGroupName : resourceGroup.name
+// }
 
-resource documentIntelligenceResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(documentIntelligenceResourceGroupName)) {
-  name: !empty(documentIntelligenceResourceGroupName) ? documentIntelligenceResourceGroupName : resourceGroup.name
-}
+// resource documentIntelligenceResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(documentIntelligenceResourceGroupName)) {
+//   name: !empty(documentIntelligenceResourceGroupName) ? documentIntelligenceResourceGroupName : resourceGroup.name
+// }
 
-resource computerVisionResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(computerVisionResourceGroupName)) {
-  name: !empty(computerVisionResourceGroupName) ? computerVisionResourceGroupName : resourceGroup.name
-}
+// resource computerVisionResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(computerVisionResourceGroupName)) {
+//   name: !empty(computerVisionResourceGroupName) ? computerVisionResourceGroupName : resourceGroup.name
+// }
 
-resource searchServiceResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(searchServiceResourceGroupName)) {
-  name: !empty(searchServiceResourceGroupName) ? searchServiceResourceGroupName : resourceGroup.name
-}
+// resource searchServiceResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(searchServiceResourceGroupName)) {
+//   name: !empty(searchServiceResourceGroupName) ? searchServiceResourceGroupName : resourceGroup.name
+// }
 
-resource storageResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(storageResourceGroupName)) {
-  name: !empty(storageResourceGroupName) ? storageResourceGroupName : resourceGroup.name
-}
+// resource storageResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(storageResourceGroupName)) {
+//   name: !empty(storageResourceGroupName) ? storageResourceGroupName : resourceGroup.name
+// }
 
-resource keyVaultResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(keyVaultResourceGroupName)) {
-  name: !empty(keyVaultResourceGroupName) ? keyVaultResourceGroupName : resourceGroup.name
-}
+// resource keyVaultResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(keyVaultResourceGroupName)) {
+//   name: !empty(keyVaultResourceGroupName) ? keyVaultResourceGroupName : resourceGroup.name
+// }
 
 // Monitor application with Azure Monitor
 module monitoring 'core/monitor/monitoring.bicep' = if (useApplicationInsights) {
   name: 'monitoring'
-  scope: resourceGroup
+  // scope: resourceGroup
   params: {
     location: location
     tags: tags
@@ -185,7 +185,7 @@ module monitoring 'core/monitor/monitoring.bicep' = if (useApplicationInsights) 
 
 module applicationInsightsDashboard 'backend-dashboard.bicep' = if (useApplicationInsights) {
   name: 'application-insights-dashboard'
-  scope: resourceGroup
+  // scope: resourceGroup
   params: {
     name: !empty(applicationInsightsDashboardName) ? applicationInsightsDashboardName : '${abbrs.portalDashboards}${resourceToken}'
     location: location
@@ -196,7 +196,7 @@ module applicationInsightsDashboard 'backend-dashboard.bicep' = if (useApplicati
 // Create an App Service Plan to group applications under the same payment plan and SKU
 module appServicePlan 'core/host/appserviceplan.bicep' = {
   name: 'appserviceplan'
-  scope: resourceGroup
+  // scope: resourceGroup
   params: {
     name: !empty(appServicePlanName) ? appServicePlanName : '${abbrs.webServerFarms}${resourceToken}'
     location: location
@@ -210,13 +210,13 @@ module appServicePlan 'core/host/appserviceplan.bicep' = {
 }
 
 // The application frontend
-module backend 'core/host/appservice.bicep' = {
-  name: 'web'
-  scope: resourceGroup
+module webapp 'core/host/appservice.bicep' = {
+  name: 'webapp'
+  // scope: resourceGroup
   params: {
-    name: !empty(backendServiceName) ? backendServiceName : '${abbrs.webSitesAppService}backend-${resourceToken}'
+    name: !empty(backendServiceName) ? backendServiceName : '${abbrs.webSitesAppService}webapp-${resourceToken}'
     location: location
-    tags: union(tags, { 'azd-service-name': 'backend' })
+    tags: union(tags, { 'azd-service-name': 'webapp' })
     appServicePlanId: appServicePlan.outputs.id
     runtimeName: 'python'
     runtimeVersion: '3.11'
@@ -319,7 +319,7 @@ var openAiDeployments = concat(defaultOpenAiDeployments, useGPT4V ? [
 
 module openAi 'core/ai/cognitiveservices.bicep' = if (isAzureOpenAiHost) {
   name: 'openai'
-  scope: openAiResourceGroup
+  // scope: openAiResourceGroup
   params: {
     name: !empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
     location: openAiResourceGroupLocation
@@ -334,7 +334,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = if (isAzureOpenAiHost) {
 // Formerly known as Form Recognizer
 module documentIntelligence 'core/ai/cognitiveservices.bicep' = {
   name: 'documentintelligence'
-  scope: documentIntelligenceResourceGroup
+  // scope: documentIntelligenceResourceGroup
   params: {
     name: !empty(documentIntelligenceServiceName) ? documentIntelligenceServiceName : '${abbrs.cognitiveServicesDocumentIntelligence}${resourceToken}'
     kind: 'FormRecognizer'
@@ -348,7 +348,7 @@ module documentIntelligence 'core/ai/cognitiveservices.bicep' = {
 
 module computerVision 'core/ai/cognitiveservices.bicep' = if (useGPT4V) {
   name: 'computerVision'
-  scope: computerVisionResourceGroup
+  // scope: computerVisionResourceGroup
   params: {
     name: computerVisionName
     kind: 'ComputerVision'
@@ -364,7 +364,7 @@ module computerVision 'core/ai/cognitiveservices.bicep' = if (useGPT4V) {
 // which is only used for free tier
 module keyVault 'core/security/keyvault.bicep' = if (useKeyVault) {
   name: 'keyvault'
-  scope: keyVaultResourceGroup
+  // scope: keyVaultResourceGroup
   params: {
     name: !empty(keyVaultServiceName) ? keyVaultServiceName : '${abbrs.keyVaultVaults}${resourceToken}'
     location: location
@@ -374,16 +374,16 @@ module keyVault 'core/security/keyvault.bicep' = if (useKeyVault) {
 
 module webKVAccess 'core/security/keyvault-access.bicep' = if (useKeyVault) {
   name: 'web-keyvault-access'
-  scope: keyVaultResourceGroup
+  // scope: keyVaultResourceGroup
   params: {
     keyVaultName: useKeyVault ? keyVault.outputs.name : ''
-    principalId: backend.outputs.identityPrincipalId
+    principalId: webapp.outputs.identityPrincipalId
   }
 }
 
 module secrets 'secrets.bicep' = if (useKeyVault) {
   name: 'secrets'
-  scope: keyVaultResourceGroup
+  // scope: keyVaultResourceGroup
   params: {
     keyVaultName: useKeyVault ? keyVault.outputs.name : ''
     storeSearchServiceSecret: useSearchServiceKey
@@ -394,7 +394,7 @@ module secrets 'secrets.bicep' = if (useKeyVault) {
 
 module searchService 'core/search/search-services.bicep' = {
   name: 'search-service'
-  scope: searchServiceResourceGroup
+  // scope: searchServiceResourceGroup
   params: {
     name: !empty(searchServiceName) ? searchServiceName : 'gptkb-${resourceToken}'
     location: !empty(searchServiceLocation) ? searchServiceLocation : location
@@ -413,7 +413,7 @@ module searchService 'core/search/search-services.bicep' = {
 
 module storage 'core/storage/storage-account.bicep' = {
   name: 'storage'
-  scope: storageResourceGroup
+  // scope: storageResourceGroup
   params: {
     name: !empty(storageAccountName) ? storageAccountName : '${abbrs.storageStorageAccounts}${resourceToken}'
     location: storageResourceGroupLocation
@@ -440,7 +440,7 @@ module storage 'core/storage/storage-account.bicep' = {
 var principalType = empty(runningOnGh) && empty(runningOnAdo) ? 'User' : 'ServicePrincipal'
 
 module openAiRoleUser 'core/security/role.bicep' = if (isAzureOpenAiHost) {
-  scope: openAiResourceGroup
+  // scope: openAiResourceGroup
   name: 'openai-role-user'
   params: {
     principalId: principalId
@@ -449,19 +449,19 @@ module openAiRoleUser 'core/security/role.bicep' = if (isAzureOpenAiHost) {
   }
 }
 
-// For both document intelligence and computer vision
-module cognitiveServicesRoleUser 'core/security/role.bicep' = {
-  scope: resourceGroup
-  name: 'cognitiveservices-role-user'
-  params: {
-    principalId: principalId
-    roleDefinitionId: 'a97b65f3-24c7-4388-baec-2e87135dc908'
-    principalType: principalType
-  }
-}
+// // For both document intelligence and computer vision
+// module cognitiveServicesRoleUser 'core/security/role.bicep' = {
+//   // scope: resourceGroup
+//   name: 'cognitiveservices-role-user'
+//   params: {
+//     principalId: principalId
+//     roleDefinitionId: 'a97b65f3-24c7-4388-baec-2e87135dc908'
+//     principalType: principalType
+//   }
+// }
 
 module storageRoleUser 'core/security/role.bicep' = {
-  scope: storageResourceGroup
+  // scope: storageResourceGroup
   name: 'storage-role-user'
   params: {
     principalId: principalId
@@ -470,19 +470,19 @@ module storageRoleUser 'core/security/role.bicep' = {
   }
 }
 
-module storageContribRoleUser 'core/security/role.bicep' = {
-  scope: storageResourceGroup
-  name: 'storage-contribrole-user'
-  params: {
-    principalId: principalId
-    roleDefinitionId: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
-    principalType: principalType
-  }
-}
+// module storageContribRoleUser 'core/security/role.bicep' = {
+//   // scope: storageResourceGroup
+//   name: 'storage-contribrole-user'
+//   params: {
+//     principalId: principalId
+//     roleDefinitionId: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+//     principalType: principalType
+//   }
+// }
 
 // Only create if using managed identity (non-free tier)
 module searchRoleUser 'core/security/role.bicep' = if (!useSearchServiceKey) {
-  scope: searchServiceResourceGroup
+  // scope: searchServiceResourceGroup
   name: 'search-role-user'
   params: {
     principalId: principalId
@@ -491,39 +491,39 @@ module searchRoleUser 'core/security/role.bicep' = if (!useSearchServiceKey) {
   }
 }
 
-module searchContribRoleUser 'core/security/role.bicep' = if (!useSearchServiceKey) {
-  scope: searchServiceResourceGroup
-  name: 'search-contrib-role-user'
-  params: {
-    principalId: principalId
-    roleDefinitionId: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
-    principalType: principalType
-  }
-}
+// module searchContribRoleUser 'core/security/role.bicep' = if (!useSearchServiceKey) {
+//   // scope: searchServiceResourceGroup
+//   name: 'search-contrib-role-user'
+//   params: {
+//     principalId: principalId
+//     roleDefinitionId: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
+//     principalType: principalType
+//   }
+// }
 
-module searchSvcContribRoleUser 'core/security/role.bicep' = if (!useSearchServiceKey) {
-  scope: searchServiceResourceGroup
-  name: 'search-svccontrib-role-user'
-  params: {
-    principalId: principalId
-    roleDefinitionId: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
-    principalType: principalType
-  }
-}
+// module searchSvcContribRoleUser 'core/security/role.bicep' = if (!useSearchServiceKey) {
+//   // scope: searchServiceResourceGroup
+//   name: 'search-svccontrib-role-user'
+//   params: {
+//     principalId: principalId
+//     roleDefinitionId: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
+//     principalType: principalType
+//   }
+// }
 
 // SYSTEM IDENTITIES
 module openAiRoleBackend 'core/security/role.bicep' = if (isAzureOpenAiHost) {
-  scope: openAiResourceGroup
+  // scope: openAiResourceGroup
   name: 'openai-role-backend'
   params: {
-    principalId: backend.outputs.identityPrincipalId
+    principalId: webapp.outputs.identityPrincipalId
     roleDefinitionId: '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
     principalType: 'ServicePrincipal'
   }
 }
 
 module openAiRoleSearchService 'core/security/role.bicep' = if (isAzureOpenAiHost && useIntegratedVectorization) {
-  scope: openAiResourceGroup
+  // scope: openAiResourceGroup
   name: 'openai-role-searchservice'
   params: {
     principalId: searchService.outputs.principalId
@@ -533,17 +533,17 @@ module openAiRoleSearchService 'core/security/role.bicep' = if (isAzureOpenAiHos
 }
 
 module storageRoleBackend 'core/security/role.bicep' = {
-  scope: storageResourceGroup
+  // scope: storageResourceGroup
   name: 'storage-role-backend'
   params: {
-    principalId: backend.outputs.identityPrincipalId
+    principalId: webapp.outputs.identityPrincipalId
     roleDefinitionId: '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'
     principalType: 'ServicePrincipal'
   }
 }
 
 module storageRoleSearchService 'core/security/role.bicep' = if (useIntegratedVectorization) {
-  scope: storageResourceGroup
+  // scope: storageResourceGroup
   name: 'storage-role-searchservice'
   params: {
     principalId: searchService.outputs.principalId
@@ -555,10 +555,10 @@ module storageRoleSearchService 'core/security/role.bicep' = if (useIntegratedVe
 // Used to issue search queries
 // https://learn.microsoft.com/azure/search/search-security-rbac
 module searchRoleBackend 'core/security/role.bicep' = if (!useSearchServiceKey) {
-  scope: searchServiceResourceGroup
+  // scope: searchServiceResourceGroup
   name: 'search-role-backend'
   params: {
-    principalId: backend.outputs.identityPrincipalId
+    principalId: webapp.outputs.identityPrincipalId
     roleDefinitionId: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
     principalType: 'ServicePrincipal'
   }
@@ -567,10 +567,10 @@ module searchRoleBackend 'core/security/role.bicep' = if (!useSearchServiceKey) 
 // Used to read index definitions (required when using authentication)
 // https://learn.microsoft.com/azure/search/search-security-rbac
 module searchReaderRoleBackend 'core/security/role.bicep' = if (useAuthentication && !useSearchServiceKey) {
-  scope: searchServiceResourceGroup
+  // scope: searchServiceResourceGroup
   name: 'search-reader-role-backend'
   params: {
-    principalId: backend.outputs.identityPrincipalId
+    principalId: webapp.outputs.identityPrincipalId
     roleDefinitionId: 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
     principalType: 'ServicePrincipal'
   }
@@ -578,10 +578,10 @@ module searchReaderRoleBackend 'core/security/role.bicep' = if (useAuthenticatio
 
 // For computer vision access by the backend
 module cognitiveServicesRoleBackend 'core/security/role.bicep' = if (useGPT4V) {
-  scope: resourceGroup
+  // scope: resourceGroup
   name: 'cognitiveservices-role-backend'
   params: {
-    principalId: backend.outputs.identityPrincipalId
+    principalId: webapp.outputs.identityPrincipalId
     roleDefinitionId: 'a97b65f3-24c7-4388-baec-2e87135dc908'
     principalType: 'ServicePrincipal'
   }
@@ -590,7 +590,7 @@ module cognitiveServicesRoleBackend 'core/security/role.bicep' = if (useGPT4V) {
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenantId
 output AZURE_AUTH_TENANT_ID string = authTenantId
-output AZURE_RESOURCE_GROUP string = resourceGroup.name
+output AZURE_RESOURCE_GROUP string = resourceGroupName
 
 // Shared by all OpenAI deployments
 output OPENAI_HOST string = openAiHost
@@ -601,7 +601,7 @@ output AZURE_OPENAI_GPT4V_MODEL string = gpt4vModelName
 // Specific to Azure OpenAI
 output AZURE_OPENAI_SERVICE string = isAzureOpenAiHost ? openAi.outputs.name : ''
 output AZURE_OPENAI_API_VERSION string = isAzureOpenAiHost ? azureOpenAiApiVersion : ''
-output AZURE_OPENAI_RESOURCE_GROUP string = isAzureOpenAiHost ? openAiResourceGroup.name : ''
+output AZURE_OPENAI_RESOURCE_GROUP string = isAzureOpenAiHost ? openAiResourceGroupName : ''
 output AZURE_OPENAI_CHATGPT_DEPLOYMENT string = isAzureOpenAiHost ? chatGptDeploymentName : ''
 output AZURE_OPENAI_EMB_DEPLOYMENT string = isAzureOpenAiHost ? embeddingDeploymentName : ''
 output AZURE_OPENAI_GPT4V_DEPLOYMENT string = isAzureOpenAiHost ? gpt4vDeploymentName : ''
@@ -614,19 +614,19 @@ output AZURE_VISION_ENDPOINT string = useGPT4V ? computerVision.outputs.endpoint
 output AZURE_KEY_VAULT_NAME string = useKeyVault ? keyVault.outputs.name : ''
 
 output AZURE_DOCUMENTINTELLIGENCE_SERVICE string = documentIntelligence.outputs.name
-output AZURE_DOCUMENTINTELLIGENCE_RESOURCE_GROUP string = documentIntelligenceResourceGroup.name
+output AZURE_DOCUMENTINTELLIGENCE_RESOURCE_GROUP string = documentIntelligenceResourceGroupName
 
 output AZURE_SEARCH_INDEX string = searchIndexName
 output AZURE_SEARCH_SERVICE string = searchService.outputs.name
 output AZURE_SEARCH_SECRET_NAME string = useSearchServiceKey ? searchServiceSecretName : ''
-output AZURE_SEARCH_SERVICE_RESOURCE_GROUP string = searchServiceResourceGroup.name
+output AZURE_SEARCH_SERVICE_RESOURCE_GROUP string = searchServiceResourceGroupName
 output AZURE_SEARCH_SEMANTIC_RANKER string = actualSearchServiceSemanticRankerLevel
 output AZURE_SEARCH_SERVICE_ASSIGNED_USERID string = searchService.outputs.principalId
 
 output AZURE_STORAGE_ACCOUNT string = storage.outputs.name
 output AZURE_STORAGE_CONTAINER string = storageContainerName
-output AZURE_STORAGE_RESOURCE_GROUP string = storageResourceGroup.name
+output AZURE_STORAGE_RESOURCE_GROUP string = storageResourceGroupName
 
 output AZURE_USE_AUTHENTICATION bool = useAuthentication
 
-output BACKEND_URI string = backend.outputs.uri
+output BACKEND_URI string = webapp.outputs.uri

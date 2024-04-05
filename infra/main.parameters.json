@@ -68,6 +68,12 @@
     "storageSkuName": {
       "value": "${AZURE_STORAGE_SKU=Standard_LRS}"
     },
+    "appServicePlanName": {
+      "value": "${AZURE_APP_SERVICE_PLAN_NAME}"
+    },
+    "backendServiceName": {
+      "value": "${AZURE_APP_SERVICE_NAME}"
+    },
     "appServiceSkuName": {
       "value": "${AZURE_APP_SERVICE_SKU=B1}"
     },

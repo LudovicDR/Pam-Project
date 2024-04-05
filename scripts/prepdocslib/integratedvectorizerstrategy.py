@@ -70,8 +70,9 @@ class IntegratedVectorizerStrategy(Strategy):
             description="Split skill to chunk documents",
             text_split_mode="pages",
             context="/document",
-            maximum_page_length=2048,
-            page_overlap_length=20,
+            default_language_code="fr",
+            maximum_page_length=5000,
+            page_overlap_length=100,
             inputs=[
                 InputFieldMappingEntry(name="text", source="/document/content"),
             ],
@@ -189,7 +190,7 @@ class IntegratedVectorizerStrategy(Strategy):
             target_index_name=self.search_info.index_name,
             data_source_name=f"{self.search_info.index_name}-blob",
             # Map the metadata_storage_name field to the title field in the index to display the PDF title in the search results
-            field_mappings=[FieldMapping(source_field_name="metadata_storage_name", target_field_name="title")],
+            field_mappings=[FieldMapping(source_field_name="metadata_storage_name", target_field_name="sourcefile")],
         )
 
         indexer_client = self.search_info.create_search_indexer_client()

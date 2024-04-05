@@ -21,7 +21,8 @@ export default defineConfig({
                 }
             }
         },
-        target: "esnext"
+        target: "esnext",
+        chunkSizeWarningLimit: 2000
     },
     server: {
         proxy: {

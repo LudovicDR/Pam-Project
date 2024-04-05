@@ -228,151 +228,43 @@ if __name__ == "__main__":
         epilog="Example: prepdocs.py '..\data\*' --storageaccount myaccount --container mycontainer --searchservice mysearch --index myindex -v",
     )
     parser.add_argument("files", nargs="?", help="Files to be processed")
-    parser.add_argument(
-        "--datalakestorageaccount", required=False, help="Optional. Azure Data Lake Storage Gen2 Account name"
-    )
-    parser.add_argument(
-        "--datalakefilesystem",
-        required=False,
-        default="gptkbcontainer",
-        help="Optional. Azure Data Lake Storage Gen2 filesystem name",
-    )
-    parser.add_argument(
-        "--datalakepath",
-        required=False,
-        help="Optional. Azure Data Lake Storage Gen2 filesystem path containing files to index. If omitted, index the entire filesystem",
-    )
-    parser.add_argument(
-        "--datalakekey", required=False, help="Optional. Use this key when authenticating to Azure Data Lake Gen2"
-    )
-    parser.add_argument(
-        "--useacls", action="store_true", help="Store ACLs from Azure Data Lake Gen2 Filesystem in the search index"
-    )
-    parser.add_argument(
-        "--category", help="Value for the category field in the search index for all sections indexed in this run"
-    )
-    parser.add_argument(
-        "--skipblobs", action="store_true", help="Skip uploading individual pages to Azure Blob Storage"
-    )
+    parser.add_argument("--datalakestorageaccount", required=False, help="Optional. Azure Data Lake Storage Gen2 Account name")
+    parser.add_argument("--datalakefilesystem", required=False, default="gptkbcontainer", help="Optional. Azure Data Lake Storage Gen2 filesystem name")
+    parser.add_argument("--datalakepath", required=False, help="Optional. Azure Data Lake Storage Gen2 filesystem path containing files to index. If omitted, index the entire filesystem")
+    parser.add_argument("--datalakekey", required=False, help="Optional. Use this key when authenticating to Azure Data Lake Gen2")
+    parser.add_argument("--useacls", action="store_true", help="Store ACLs from Azure Data Lake Gen2 Filesystem in the search index")
+    parser.add_argument("--category", help="Value for the category field in the search index for all sections indexed in this run")
+    parser.add_argument("--skipblobs", action="store_true", help="Skip uploading individual pages to Azure Blob Storage")
     parser.add_argument("--storageaccount", help="Azure Blob Storage account name")
     parser.add_argument("--container", help="Azure Blob Storage container name")
     parser.add_argument("--storageresourcegroup", help="Azure blob storage resource group")
-    parser.add_argument(
-        "--storagekey",
-        required=False,
-        help="Optional. Use this Azure Blob Storage account key instead of the current user identity to login (use az login to set current user for Azure)",
-    )
-    parser.add_argument(
-        "--tenantid", required=False, help="Optional. Use this to define the Azure directory where to authenticate)"
-    )
-    parser.add_argument(
-        "--subscriptionid",
-        required=False,
-        help="Optional. Use this to define managed identity connection string in integrated vectorization",
-    )
-    parser.add_argument(
-        "--searchservice",
-        help="Name of the Azure AI Search service where content should be indexed (must exist already)",
-    )
-    parser.add_argument(
-        "--searchserviceassignedid",
-        required=False,
-        help="Search service system assigned Identity (Managed identity) (used for integrated vectorization)",
-    )
-    parser.add_argument(
-        "--index",
-        help="Name of the Azure AI Search index where content should be indexed (will be created if it doesn't exist)",
-    )
-    parser.add_argument(
-        "--searchkey",
-        required=False,
-        help="Optional. Use this Azure AI Search account key instead of the current user identity to login (use az login to set current user for Azure)",
-    )
-    parser.add_argument(
-        "--searchsecretname",
-        required=False,
-        help="Required if searchkey is not provided and search service is free sku. Fetch the Azure AI Vision key from this keyvault instead of the instead of the current user identity to login (use az login to set current user for Azure)",
-    )
-    parser.add_argument(
-        "--searchanalyzername",
-        required=False,
-        default="en.microsoft",
-        help="Optional. Name of the Azure AI Search analyzer to use for the content field in the index",
-    )
+    parser.add_argument("--storagekey", required=False, help="Optional. Use this Azure Blob Storage account key instead of the current user identity to login (use az login to set current user for Azure)")
+    parser.add_argument("--tenantid", required=False, help="Optional. Use this to define the Azure directory where to authenticate)")
+    parser.add_argument("--subscriptionid", required=False, help="Optional. Use this to define managed identity connection string in integrated vectorization")
+    parser.add_argument("--searchservice", help="Name of the Azure AI Search service where content should be indexed (must exist already)")
+    parser.add_argument("--searchserviceassignedid", required=False, help="Search service system assigned Identity (Managed identity) (used for integrated vectorization)")
+    parser.add_argument("--index", help="Name of the Azure AI Search index where content should be indexed (will be created if it doesn't exist)")
+    parser.add_argument("--searchkey", required=False, help="Optional. Use this Azure AI Search account key instead of the current user identity to login (use az login to set current user for Azure)")
+    parser.add_argument("--searchsecretname", required=False, help="Required if searchkey is not provided and search service is free sku. Fetch the Azure AI Vision key from this keyvault instead of the instead of the current user identity to login (use az login to set current user for Azure)")
+    parser.add_argument("--searchanalyzername", required=False, default="en.microsoft", help="Optional. Name of the Azure AI Search analyzer to use for the content field in the index")
     parser.add_argument("--openaihost", help="Host of the API used to compute embeddings ('azure' or 'openai')")
     parser.add_argument("--openaiservice", help="Name of the Azure OpenAI service used to compute embeddings")
-    parser.add_argument(
-        "--openaideployment",
-        help="Name of the Azure OpenAI model deployment for an embedding model ('text-embedding-ada-002' recommended)",
-    )
-    parser.add_argument(
-        "--openaimodelname", help="Name of the Azure OpenAI embedding model ('text-embedding-ada-002' recommended)"
-    )
-    parser.add_argument(
-        "--novectors",
-        action="store_true",
-        help="Don't compute embeddings for the sections (e.g. don't call the OpenAI embeddings API during indexing)",
-    )
-    parser.add_argument(
-        "--disablebatchvectors", action="store_true", help="Don't compute embeddings in batch for the sections"
-    )
-    parser.add_argument(
-        "--openaikey",
-        required=False,
-        help="Optional. Use this Azure OpenAI account key instead of the current user identity to login (use az login to set current user for Azure). This is required only when using non-Azure endpoints.",
-    )
+    parser.add_argument("--openaideployment", help="Name of the Azure OpenAI model deployment for an embedding model ('text-embedding-ada-002' recommended)")
+    parser.add_argument("--openaimodelname", help="Name of the Azure OpenAI embedding model ('text-embedding-ada-002' recommended)")
+    parser.add_argument("--novectors", action="store_true", help="Don't compute embeddings for the sections (e.g. don't call the OpenAI embeddings API during indexing)")
+    parser.add_argument("--disablebatchvectors", action="store_true", help="Don't compute embeddings in batch for the sections")
+    parser.add_argument("--openaikey", required=False, help="Optional. Use this Azure OpenAI account key instead of the current user identity to login (use az login to set current user for Azure). This is required only when using non-Azure endpoints.")
     parser.add_argument("--openaiorg", required=False, help="This is required only when using non-Azure endpoints.")
-    parser.add_argument(
-        "--remove",
-        action="store_true",
-        help="Remove references to this document from blob storage and the search index",
-    )
-    parser.add_argument(
-        "--removeall",
-        action="store_true",
-        help="Remove all blobs from blob storage and documents from the search index",
-    )
-    parser.add_argument(
-        "--localpdfparser",
-        action="store_true",
-        help="Use PyPdf local PDF parser (supports only digital PDFs) instead of Azure Document Intelligence service to extract text, tables and layout from the documents",
-    )
-    parser.add_argument(
-        "--localhtmlparser",
-        action="store_true",
-        help="Use Beautiful soap local HTML parser instead of Azure Document Intelligence service to extract text, tables and layout from the documents",
-    )
-    parser.add_argument(
-        "--documentintelligenceservice",
-        required=False,
-        help="Optional. Name of the Azure Document Intelligence service which will be used to extract text, tables and layout from the documents (must exist already)",
-    )
-    parser.add_argument(
-        "--documentintelligencekey",
-        required=False,
-        help="Optional. Use this Azure Document Intelligence account key instead of the current user identity to login (use az login to set current user for Azure)",
-    )
-    parser.add_argument(
-        "--searchimages",
-        action="store_true",
-        required=False,
-        help="Optional. Generate image embeddings to enable each page to be searched as an image",
-    )
-    parser.add_argument(
-        "--visionendpoint",
-        required=False,
-        help="Optional, required if --searchimages is specified. Endpoint of Azure AI Vision service to use when embedding images.",
-    )
-    parser.add_argument(
-        "--keyvaultname",
-        required=False,
-        help="Required only if any keys must be fetched from the key vault.",
-    )
-    parser.add_argument(
-        "--useintvectorization",
-        required=False,
-        help="Required if --useintvectorization is specified. Enable Integrated vectorizer indexer support which is in preview)",
-    )
+    parser.add_argument("--remove", action="store_true", help="Remove references to this document from blob storage and the search index")
+    parser.add_argument("--removeall", action="store_true", help="Remove all blobs from blob storage and documents from the search index")
+    parser.add_argument("--localpdfparser", action="store_true", help="Use PyPdf local PDF parser (supports only digital PDFs) instead of Azure Document Intelligence service to extract text, tables and layout from the documents")
+    parser.add_argument("--localhtmlparser", action="store_true", help="Use Beautiful soap local HTML parser instead of Azure Document Intelligence service to extract text, tables and layout from the documents")
+    parser.add_argument("--documentintelligenceservice", required=False, help="Optional. Name of the Azure Document Intelligence service which will be used to extract text, tables and layout from the documents (must exist already)")
+    parser.add_argument("--documentintelligencekey", required=False, help="Optional. Use this Azure Document Intelligence account key instead of the current user identity to login (use az login to set current user for Azure)")
+    parser.add_argument("--searchimages", action="store_true", required=False, help="Optional. Generate image embeddings to enable each page to be searched as an image")
+    parser.add_argument("--visionendpoint", required=False, help="Optional, required if --searchimages is specified. Endpoint of Azure AI Vision service to use when embedding images.")
+    parser.add_argument("--keyvaultname", required=False, help="Required only if any keys must be fetched from the key vault.")
+    parser.add_argument("--useintvectorization", required=False, help="Required if --useintvectorization is specified. Enable Integrated vectorizer indexer support which is in preview)")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     args = parser.parse_args()
 
