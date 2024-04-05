@@ -28,7 +28,13 @@ if ($env:AZURE_SEARCH_SECRET_NAME) { $searchSecretNameArg = "--searchsecretname 
 
 if ($env:USE_GPT4V -eq $true) { $searchImagesArg = "--searchimages" }
 
-if ($env:USE_VECTORS -eq $false) { $disableVectorsArg = "--novectors" }
+if ($env:USE_VECTORS -eq $false) {
+  $disableVectorsArg="--novectors"
+}
+
+if ($env:AZURE_OPENAI_EMB_DIMENSIONS) {
+  $openaiDimensionsArg = "--openaidimensions $env:AZURE_OPENAI_EMB_DIMENSIONS"
+}
 
 if ($env:USE_LOCAL_PDF_PARSER -eq $true) { $localPdfParserArg = "--localpdfparser" }
 
@@ -43,8 +49,9 @@ $dataArg = "`"$cwd/data/*`""
 
 $argumentList = "./scripts/prepdocs.py $dataArg --verbose --subscriptionid $env:AZURE_SUBSCRIPTION_ID " + `
 "--storageaccount $env:AZURE_STORAGE_ACCOUNT --container $env:AZURE_STORAGE_CONTAINER --storageresourcegroup $env:AZURE_STORAGE_RESOURCE_GROUP " + `
-"--searchservice $env:AZURE_SEARCH_SERVICE --index $env:AZURE_SEARCH_INDEX $searchAnalyzerNameArg $searchSecretNameArg " + `
-"--openaihost `"$env:OPENAI_HOST`" --openaimodelname `"$env:AZURE_OPENAI_EMB_MODEL_NAME`" " + `
+"--searchservice $env:AZURE_SEARCH_SERVICE --index $env:AZURE_SEARCH_INDEX " + `
+"$searchAnalyzerNameArg $searchSecretNameArg " + `
+"--openaihost `"$env:OPENAI_HOST`" --openaimodelname `"$env:AZURE_OPENAI_EMB_MODEL_NAME`" $openaiDimensionsArg " + `
 "--openaiservice `"$env:AZURE_OPENAI_SERVICE`" --openaideployment `"$env:AZURE_OPENAI_EMB_DEPLOYMENT`" " + `
 "--openaikey `"$env:OPENAI_API_KEY`" --openaiorg `"$env:OPENAI_ORGANIZATION`" " + `
 "--documentintelligenceservice $env:AZURE_DOCUMENTINTELLIGENCE_SERVICE " + `
